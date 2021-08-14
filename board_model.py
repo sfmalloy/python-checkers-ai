@@ -134,26 +134,6 @@ class board:
 
     def make_capture_move(self, src: point, dest: point, player: tile_state):
         status = self.is_legal_move(src, dest, player)
-        if status == move_status.CAPTURED:
-            x_diff = src.x - dest.x
-            y_diff = src.y - dest.y
-
-            y_offset = y_diff // 2
-            x_offset = x_diff // 2
-            self.grid[y_offset][x_offset].state = tile_state.EMPTY
-            self.grid[y_offset][x_offset].is_king = tile_state.EMPTY
-            self.grid[src.y][src.x].state = tile_state.EMPTY
-            self.grid[src.y][src.x].is_king = False
-            self.grid[dest.y][dest.x].state = player
-            if src.self.grid[src.y][src.x].is_king:
-                self.grid[src.y][src.x].is_king = False
-                self.grid[dest.y][dest.x].is_king = True
-
-            # test for king transform
-            if (player == tile_state.PLAYER_1 and dest.y == 7):
-                self.grid[dest.y][dest.x].is_king = True
-            if (player == tile_state.PLAYER_2 and dest.y == 0):
-                self.grid[dest.y][dest.x].is_king = True
         return status
     
     # First move may be any move
@@ -163,5 +143,6 @@ class board:
         return
 
 
-b = board()
-b.print()
+if __name__ == '__main__':
+    b = board()
+    b.print()
