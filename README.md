@@ -1,2 +1,8 @@
-# random-hackathon-august-2021
-Code for an unofficial hackathon, what's it gonna be? I don't know yet
+# python-checkers-ai
+
+Checkers AI using various Python libraries. (Created in Python 3.8)
+
+### Libraries
+- keras (for the AI)
+- tensorflow (AI backend needed for keras)
+- pygame (for the GUI/game component)
