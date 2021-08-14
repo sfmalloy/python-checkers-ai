@@ -100,114 +100,52 @@ class board:
         # in all other cases the move is illegal
         return move_status.FAILED
 
-    def make_move(self, src: point, dest: point, player: tile_state) -> move_status:
-        status = self.is_legal_move(src, dest, player)
-        if status == move_status.MOVED:
-            if src.self.grid[src.y][src.x].is_king:
-                self.grid[src.y][src.x].is_king = False
-                self.grid[dest.y][dest.x].is_king = True
-            self.grid[src.y][src.x].state = tile_state.EMPTY
-            self.grid[dest.y][dest.x] = player
+    def get_moves(self, src: point, player: tile_state, has_captured: bool = False, prev_moves: list(point) = []) -> list(list(point)):
+        legal_moves = []
+        # checking 1-space moves - initial cases
+        if not has_captured:
+            up_right = point(src.x + 1, src.y - 1)
+            if self.is_legal_move(src, up_right, player) != move_status.FAILED:
+                legal_moves.append([up_right])
+            up_left = point(src.x - 1, src.y - 1)
+            if self.is_legal_move(src, up_left, player) != move_status.FAILED:
+                legal_moves.append([up_left])
+            down_right = point(src.x + 1, src.y + 1)
+            if self.is_legal_move(src, down_right, player) != move_status.FAILED:
+                legal_moves.append([down_right])
+            down_left = point(src.x - 1, src.y + 1)
+            if self.is_legal_move(src, down_left, player) != move_status.FAILED:
+                legal_moves.append([down_left])
 
-            # test for king transform
-            if (player == tile_state.PLAYER_1 and dest.y == 7):
-                self.grid[dest.y][dest.x].is_king = True
-            elif (player == tile_state.PLAYER_2 and dest.y == 0):
-                self.grid[dest.y][dest.x].is_king = True
-        elif status == move_status.CAPTURED:
-            y_offset = (src.x - dest.x) // 2
-            x_offset = (src.y - dest.y) // 2
-            self.grid[y_offset][x_offset].state = tile_state.EMPTY
-            self.grid[y_offset][x_offset].is_king = tile_state.EMPTY
+       # checking 2-space moves - recursive cases
+        up_right = point(src.x + 2, src.y - 2)
+        if self.is_legal_move(src, up_right, player) != move_status.FAILED:
+            temp = prev_moves.append(up_right)
+            legal_moves.append(self.get_moves(up_right, player, True, temp))
 
-            if src.self.grid[src.y][src.x].is_king:
-                self.grid[src.y][src.x].is_king = False
-                self.grid[dest.y][dest.x].is_king = True
-            self.grid[src.y][src.x].state = tile_state.EMPTY
-            self.grid[dest.y][dest.x].state = player
+        up_left = point(src.x - 2, src.y - 2)
+        if self.is_legal_move(src, up_left, player) != move_status.FAILED:
+            temp = prev_moves.append(up_left)
+            legal_moves.append(self.get_moves(up_left, player, True, temp))
 
-            # test for king transform
-            if (player == tile_state.PLAYER_1 and dest.y == 7):
-                self.grid[dest.y][dest.x].is_king = True
-            if (player == tile_state.PLAYER_2 and dest.y == 0):
-                self.grid[dest.y][dest.x].is_king = True
-        return status
+        down_right = point(src.x + 2, src.y + 2)
+        if self.is_legal_move(src, down_right, player) != move_status.FAILED:
+            temp = prev_moves.append(down_right)
+            legal_moves.append(self.get_moves(down_right, player, True, temp))
 
-    def is_legal_capture_move(self, src: point, dest: point, player: tile_state):
-        # checking inputs
-        if (player == tile_state.EMPTY): return move_status.FAILED
-        if src.x < 0 or 7 < src.x: return move_status.FAILED
-        if src.y < 0 or 7 < src.y: return move_status.FAILED
-        if dest.x < 0 or 7 < dest.x: return move_status.FAILED
-        if dest.y < 0 or 7 < dest.y: return move_status.FAILED
-        if self.grid[src.y][src.x].state != player: return move_status.FAILED
-        if self.grid[dest.y][dest.x].state != tile_state.EMPTY: return move_status.FAILED
+        down_left = point(src.x - 2, src.y + 2)
+        if self.is_legal_move(src, down_left, player) != move_status.FAILED:
+            temp = prev_moves.append(down_left)
+            legal_moves.append(self.get_moves(down_left, player, True, temp))
+        return list(filter(lambda x: x, legal_moves))
 
-        x_diff = src.x - dest.x
-        y_diff = src.y - dest.y
-
-        if not self.grid[src.y][src.x].is_king:
-            if player == tile_state.PLAYER_1 and y_diff < 0:
-                return move_status.FAILED
-            elif y_diff > 0: # is player 2, must be negative
-                return move_status.FAILED
-
-        # is a two-space diagonal move that captures
-        if abs(x_diff) == 2 and abs(y_diff) == 2:
-            y_offset = y_diff // 2
-            x_offset = x_diff // 2
-            if (self.grid[y_offset][x_offset].state != tile_state.EMPTY and 
-            self.grid[y_offset][x_offset].state != player):
-                return move_status.CAPTURED
-        # in all other cases the move is illegal
-        return move_status.FAILED
-
-    def make_capture_move(self, src: point, dest: point, player: tile_state):
-        status = self.is_legal_move(src, dest, player)
-        if status == move_status.MOVED:
-            if src.self.grid[src.y][src.x].is_king:
-                self.grid[src.y][src.x].is_king = False
-                self.grid[dest.y][dest.x].is_king = True
-            self.grid[src.y][src.x].state = tile_state.EMPTY
-            self.grid[dest.y][dest.x] = player
-
-            # test for king transform
-            if (player == tile_state.PLAYER_1 and dest.y == 7):
-                self.grid[dest.y][dest.x].is_king = True
-            elif (player == tile_state.PLAYER_2 and dest.y == 0):
-                self.grid[dest.y][dest.x].is_king = True
-        elif status == move_status.CAPTURED:
-            y_offset = (src.x - dest.x) // 2
-            x_offset = (src.y - dest.y) // 2
-            self.grid[y_offset][x_offset].state = tile_state.EMPTY
-            self.grid[y_offset][x_offset].is_king = tile_state.EMPTY
-
-            if src.self.grid[src.y][src.x].is_king:
-                self.grid[src.y][src.x].is_king = False
-                self.grid[dest.y][dest.x].is_king = True
-            self.grid[src.y][src.x].state = tile_state.EMPTY
-            self.grid[dest.y][dest.x].state = player
-
-            # test for king transform
-            if (player == tile_state.PLAYER_1 and dest.y == 7):
-                self.grid[dest.y][dest.x].is_king = True
-            if (player == tile_state.PLAYER_2 and dest.y == 0):
-                self.grid[dest.y][dest.x].is_king = True
-        return status
-    
-    # First move may be any move
-    # If first move captured a piece
-    #   make subsequent move
-    def make_moves(self, moves: list(tuple(point, point)), player: tile_state):
-        if len(moves) > 0: status = self.make_move(moves[0][0], moves[0][1]. player)
-        i = 1
-        if status == move_status.FAILED: return False
-        while status == move_status.CAPTURED:
-            status = self.make_move(moves[i][0], moves[i][1]. player)
-            i += 1
-        return True
+    def make_move(self, moves: list(point), player: tile_state):
+        if len(moves) == 0:
+            return 
+        
 
 
 if __name__ == '__main__':
     b = board()
     b.print()
+    b.get_moves(point(1,2), tile_state.PLAYER_1)
