@@ -9,6 +9,9 @@ class point:
     def __repr__(self):
         return f'({self.x},{self.y})'
 
+    def __hash__(self):
+        return hash((self.x, self.y))
+
 class tile_state(Enum):
     EMPTY    = 0
     PLAYER_1 = 1
@@ -184,4 +187,6 @@ if __name__ == '__main__':
     b = board()
     b.print()
     print(b.get_moves(point(1,2), tile_state.PLAYER_1))
+    b.make_move(point(1,2), point(2,3), tile_state.PLAYER_1)
+    b.print()
 
