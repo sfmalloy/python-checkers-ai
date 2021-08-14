@@ -82,13 +82,13 @@ class board:
         if self.grid[src.y][src.x].state != player: return move_status.FAILED
         if self.grid[dest.y][dest.x].state != tile_state.EMPTY: return move_status.FAILED
 
-        x_diff = src.x - dest.x
-        y_diff = src.y - dest.y
+        x_diff = dest.x - src.x
+        y_diff = dest.y - src.y
 
         if not self.grid[src.y][src.x].is_king:
-            if player == tile_state.PLAYER_1 and y_diff < 0:
+            if player == tile_state.PLAYER_1 and y_diff <= 0:
                 return move_status.FAILED
-            elif y_diff > 0: # is player 2, must be negative
+            if player == tile_state.PLAYER_2 and y_diff >= 0:
                 return move_status.FAILED
         
         # is a one-space diagonal move
