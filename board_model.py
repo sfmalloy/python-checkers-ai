@@ -1,9 +1,13 @@
 from enum import Enum
+from typing import List
 
 class point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+    
+    def __repr__(self):
+        return f'({self.x},{self.y})'
 
 class tile_state(Enum):
     EMPTY    = 0
@@ -100,7 +104,7 @@ class board:
         # in all other cases the move is illegal
         return move_status.FAILED
 
-    def get_moves(self, src: point, player: tile_state, has_captured: bool = False, prev_moves: list(point) = []) -> list(list(point)):
+    def get_moves(self, src: point, player: tile_state, has_captured: bool = False, prev_moves: List[point] = []) -> List[List[point]]:
         legal_moves = []
         # checking 1-space moves - initial cases
         if not has_captured:
@@ -139,7 +143,7 @@ class board:
             legal_moves.append(self.get_moves(down_left, player, True, temp))
         return list(filter(lambda x: x, legal_moves))
 
-    def make_move(self, moves: list(point), player: tile_state):
+    def make_move(self, moves: List[point], player: tile_state):
         if len(moves) == 0:
             return 
         
@@ -148,4 +152,4 @@ class board:
 if __name__ == '__main__':
     b = board()
     b.print()
-    b.get_moves(point(1,2), tile_state.PLAYER_1)
+    print(b.get_moves(point(1,2), tile_state.PLAYER_1))
