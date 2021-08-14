@@ -171,7 +171,7 @@ class board:
     def make_turn(self, src: point, moves: List[point], player: tile_state):
         status = move_status.FAILED
         for move in moves:
-            status = make_move(src, move, player)
+            status = self.make_move(src, move, player)
             if status == move_status.FAILED: return status
         return status
         
