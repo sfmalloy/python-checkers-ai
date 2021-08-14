@@ -198,8 +198,14 @@ class board:
     # First move may be any move
     # If first move captured a piece
     #   make subsequent move
-    def make_moves():
-        return
+    def make_moves(self, moves: list(tuple(point, point)), player: tile_state):
+        if len(moves) > 0: status = self.make_move(moves[0][0], moves[0][1]. player)
+        i = 1
+        if status == move_status.FAILED: return False
+        while status == move_status.CAPTURED:
+            status = self.make_move(moves[i][0], moves[i][1]. player)
+            i += 1
+        return True
 
 
 if __name__ == '__main__':
