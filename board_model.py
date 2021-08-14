@@ -8,6 +8,9 @@ class point:
     
     def __repr__(self):
         return f'({self.x},{self.y})'
+    
+    def __hash__(self):
+        return hash((self.x, self.y))
 
     def __hash__(self):
         return hash((self.x, self.y))
@@ -189,4 +192,3 @@ if __name__ == '__main__':
     print(b.get_moves(point(1,2), tile_state.PLAYER_1))
     b.make_move(point(1,2), point(2,3), tile_state.PLAYER_1)
     b.print()
-
