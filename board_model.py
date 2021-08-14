@@ -143,9 +143,37 @@ class board:
             legal_moves.append(self.get_moves(down_left, player, True, temp))
         return list(filter(lambda x: x, legal_moves))
 
-    def make_move(self, moves: List[point], player: tile_state):
-        if len(moves) == 0:
-            return 
+    def remove_piece(self, move: point):
+        self.grid[move.y][move.x].state = tile_state.EMPTY
+        self.grid[move.y][move.x].is_king = False
+
+    def make_move(self, src: point, dest: point, player: tile_state):
+        if not self.is_legal_move(src, dest, player): return move_status.FAILED
+        
+        x_diff = dest.x - src.x
+        y_diff = dest.y - src.y
+
+        if abs(x_diff) == 1 and abs(y_diff) == 1: # move one tile
+            self.grid[dest.y][dest.x].state = player
+            self.grid[dest.y][dest.x].is_king = self.grid[src.y][src.x].is_king
+            self.remove_piece(src)
+            return move_status.MOVED
+        
+        if abs(x_diff) == 2 and abs(y_diff) == 2: # move two tiles
+            self.grid[dest.y][dest.x].state = player
+            self.grid[dest.y][dest.x].is_king = self.grid[src.y][src.x].is_king
+            self.remove_piece(src)
+            self.remove_piece(point(y_diff // 2, x_diff // 2))
+            return move_status.CAPTURED
+
+        return move_status.FAILED
+
+    def make_turn(self, src: point, moves: List[point], player: tile_state):
+        for move in moves:
+            status = make_move(src, move, player)
+            if status == move_status.FAILED:
+                return False
+        return True
         
 
 
@@ -153,3 +181,4 @@ if __name__ == '__main__':
     b = board()
     b.print()
     print(b.get_moves(point(1,2), tile_state.PLAYER_1))
+
