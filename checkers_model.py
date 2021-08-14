@@ -8,7 +8,7 @@ class game_model:
         self.turn = tile_state.PLAYER_1
 
     def make_turn(self, src: point, moves: List[point]):
-        status = self.board.make_turn(src, moves, self.turn)
+        status = self.board.make_turn(src, moves[1:], self.turn)
         if status != move_status.FAILED:
             if self.turn == tile_state.PLAYER_1:
                 self.turn = tile_state.PLAYER_2
