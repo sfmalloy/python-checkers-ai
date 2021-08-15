@@ -11,6 +11,9 @@ class point:
     
     def __hash__(self):
         return hash((self.x, self.y))
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
 
 class tile_state(Enum):
     EMPTY    = 0
@@ -25,7 +28,7 @@ class move_status(Enum):
 class tile:
     def __init__ (self, state: tile_state):
         self.state: tile_state = state
-        self.is_king: bool       = False
+        self.is_king: bool     = False
 
 class board:
     def __init__(self):

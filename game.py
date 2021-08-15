@@ -1,6 +1,5 @@
 # from checkers_model import game
 import board_model
-from checkers_model import game_model
 
 import pygame
 import pygame.gfxdraw
@@ -69,20 +68,17 @@ class gui_game:
             pygame.gfxdraw.filled_circle(self.screen, h.center[0], h.center[1], h.width // 2, h.color)
 
             # Draw inner circle
-            pygame.gfxdraw.aacircle(self.screen, h.center[0], h.center[1], h.width // 3, (128, 90, 45))
-            pygame.gfxdraw.filled_circle(self.screen, h.center[0], h.center[1], h.width // 3, (128, 90, 45))
+            pygame.gfxdraw.aacircle(self.screen, h.center[0], h.center[1], h.width - 36, (128, 90, 45))
+            pygame.gfxdraw.filled_circle(self.screen, h.center[0], h.center[1], h.width - 36, (128, 90, 45))
 
     def highlight_moves(self, piece, dx, dy, tx, ty):
-        if piece.state == board_model.tile_state.PLAYER_1:
-            self.highlighted.append(game_object(piece.x + dx * self.square_length, 
-                                                piece.y + dy * self.square_length,
-                                                piece.width,
-                                                piece.height,
-                                                tx, 
-                                                ty, 
-                                                (255, 255, 255)))
-        elif piece.state == board_model.tile_state.PLAYER_2:
-            print(2)
+        self.highlighted.append(game_object(piece.x + dx * self.square_length, 
+                                            piece.y + dy * self.square_length,
+                                            piece.width,
+                                            piece.height,
+                                            tx, 
+                                            ty, 
+                                            (255, 255, 255)))
 
 if __name__ == '__main__':
     # Initializes all the modules
@@ -90,12 +86,14 @@ if __name__ == '__main__':
     WIN_LENGTH = 720
     screen = pygame.display.set_mode(size=(WIN_LENGTH, WIN_LENGTH))
     pygame.display.set_caption('Checkers')
-    gm = game_model()
-    g = gui_game(screen, gm.board())
+    g = gui_game(screen, board_model.board())
 
-    # Game loop
+    # Game helper vars
     running = True
     last_clicked = None
+    curr_paths = {}
+
+    # Game loop
     while running:
         g.draw_board()
         for event in pygame.event.get():
@@ -104,23 +102,23 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 found = False
-                curr_paths = {}
                 for p in g.pieces:
                     if p.collidepoint(event.pos):
                         g.highlighted.clear()
                         paths = g.model.get_moves(board_model.point(p.tile_x, p.tile_y), p.state)
                         for path in paths:
                             g.highlight_moves(p, path[-1].x - p.tile_x, path[-1].y - p.tile_y, path[-1].x, path[-1].y)
-                        # g.highlight_moves(p)
+                            curr_paths[path[-1]] = path
+                        print(curr_paths)
                         last_clicked = p
                         found = True
                         break
                 if not found:
                     for h in g.highlighted:
                         if h.collidepoint(event.pos):
-                            # g.model.make_move(board_model.point(last_clicked.tile_x, last_clicked.tile_y), 
-                            #                   board_model.point(h.tile_x, h.tile_y), 
-                            #                   last_clicked.state)
+                            g.model.make_turn(board_model.point(last_clicked.tile_x, last_clicked.tile_y), 
+                                            curr_paths[board_model.point(h.tile_x, h.tile_y)], 
+                                            last_clicked.state)
                             last_clicked.x = h.x
                             last_clicked.y = h.y
                             last_clicked.width = h.width
@@ -128,6 +126,7 @@ if __name__ == '__main__':
                             last_clicked.tile_x = h.tile_x
                             last_clicked.tile_y = h.tile_y
                             found = True
+                            curr_paths = {}
                             break
                     if found:
                         g.highlighted.clear()
