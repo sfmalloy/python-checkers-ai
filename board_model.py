@@ -15,6 +15,9 @@ class point:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __hash__(self):
+        return hash((self.x, self.y))
+
 class tile_state(Enum):
     EMPTY    = 0
     PLAYER_1 = 1
@@ -130,23 +133,27 @@ class board:
        # checking 2-space moves - recursive cases
         up_right = point(src.x + 2, src.y - 2)
         if self.is_legal_move(src, up_right, player) != move_status.FAILED:
-            temp = prev_moves.append(up_right)
-            legal_moves.append(self.get_moves(up_right, player, True, temp))
+            if up_right not in prev_moves:
+                temp = prev_moves.append(up_right)
+                legal_moves.append(self.get_moves(up_right, player, True, temp))
 
         up_left = point(src.x - 2, src.y - 2)
         if self.is_legal_move(src, up_left, player) != move_status.FAILED:
-            temp = prev_moves.append(up_left)
-            legal_moves.append(self.get_moves(up_left, player, True, temp))
+            if up_left not in prev_moves:
+                temp = prev_moves.append(up_left)
+                legal_moves.append(self.get_moves(up_left, player, True, temp))
 
         down_right = point(src.x + 2, src.y + 2)
         if self.is_legal_move(src, down_right, player) != move_status.FAILED:
-            temp = prev_moves.append(down_right)
-            legal_moves.append(self.get_moves(down_right, player, True, temp))
+            if down_right not in prev_moves:
+                temp = prev_moves.append(down_right)
+                legal_moves.append(self.get_moves(down_right, player, True, temp))
 
         down_left = point(src.x - 2, src.y + 2)
         if self.is_legal_move(src, down_left, player) != move_status.FAILED:
-            temp = prev_moves.append(down_left)
-            legal_moves.append(self.get_moves(down_left, player, True, temp))
+            if down_left not in prev_moves:
+                temp = prev_moves.append(down_left)
+                legal_moves.append(self.get_moves(down_left, player, True, temp))
         return list(filter(lambda x: x, legal_moves))
 
     def remove_piece(self, move: point):
@@ -182,12 +189,9 @@ class board:
         return status
         
 
-
 if __name__ == '__main__':
     b = board()
     b.print()
     print(b.get_moves(point(1,2), tile_state.PLAYER_1))
     b.make_move(point(1,2), point(2,3), tile_state.PLAYER_1)
     b.print()
-
-
